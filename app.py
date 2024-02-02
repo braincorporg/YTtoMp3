@@ -1,27 +1,18 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, Response
 from pytube import YouTube
 from moviepy.editor import *
-import os
 import io
 
 app = Flask(__name__)
 
-def download_video_as_mp3(youtube_url):
-    # Download video from YouTube
+def stream_video_as_mp3(youtube_url):
     video = YouTube(youtube_url)
     stream = video.streams.filter(only_audio=True).first()
-    downloaded_file = stream.download(filename="temp")
-
-    # Convert video to MP3
-    video_clip = AudioFileClip(downloaded_file)
-    mp3_file = io.BytesIO()
-    video_clip.write_audiofile(mp3_file, format="mp3")
-    mp3_file.seek(0)
-
-    # Remove the temporary file
-    os.remove(downloaded_file)
-
-    return mp3_file
+    buffer = io.BytesIO()
+    video_clip = AudioFileClip(stream.url, fps=44100, nbytes=2, nchannels=2)
+    video_clip.write_audiofile(buffer, codec='libmp3lame')
+    buffer.seek(0)
+    return buffer
 
 @app.route('/download_mp3', methods=['GET'])
 def download_mp3():
@@ -29,9 +20,11 @@ def download_mp3():
     if not youtube_url:
         return "YouTube URL is required", 400
 
-    mp3_file = download_video_as_mp3(youtube_url)
-    
-    return send_file(mp3_file, mimetype="audio/mp3", as_attachment=True, download_name="download.mp3")
+    try:
+        mp3_stream = stream_video_as_mp3(youtube_url)
+        return Response(mp3_stream, mimetype="audio/mp3")
+    except Exception as e:
+        return str(e), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
