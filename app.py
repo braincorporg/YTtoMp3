@@ -30,7 +30,7 @@ def download_video_as_mp3(youtube_url):
     return mp3_file
 
 def get_transcript(audio_file):
-    client = openai.Audio
+    client = OpenAI(api_key=openaikey)
 
     # Write the BytesIO object to a temporary file
     temp_filename = "temp_audio_file.mp3"
@@ -40,7 +40,7 @@ def get_transcript(audio_file):
     try:
         # Use the file path for transcription
         with open(temp_filename, 'rb') as f:
-            transcript = client.transcriptions.create(
+            transcript = client.audio.transcriptions.create(
                 model="whisper-1", 
                 file=f
             )
