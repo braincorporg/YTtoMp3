@@ -64,11 +64,11 @@ def transcribe():
     youtube_url = request.args.get('url')
     if not youtube_url:
         return "YouTube URL is required", 400
-
+    print("Received YouTube URL:", youtube_url)
     try:
         # Download the video as mp3 and get BytesIO object
         mp3_file = download_video_as_mp3(youtube_url)
-
+        print("MP3 file downloaded and converted.")  # Debug 2
         # Create a temporary file to hold the mp3 data
         temp_filename = "temp_audio_for_transcription.mp3"
         with open(temp_filename, "wb") as temp_file:
@@ -76,7 +76,7 @@ def transcribe():
         
         # Reset the BytesIO object position to the start
         mp3_file.seek(0)
-
+        print("File pointer reset.")
         # Now, instead of passing BytesIO directly, use the temporary file
         transcript = ""
         with open(temp_filename, 'rb') as f:
@@ -84,7 +84,7 @@ def transcribe():
                 model="whisper-1", 
                 file=f
             )['text']
-
+        print("Transcription API called successfully.")  # Debug 4
         # Cleanup: Remove the temporary file after use
         os.remove(temp_filename)
 
