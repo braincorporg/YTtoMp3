@@ -3,7 +3,7 @@ from pytube import YouTube
 from moviepy.editor import *
 import os
 import io
-import openai
+from openai import OpenAI
 
 app = Flask(__name__)
 
@@ -30,9 +30,10 @@ def download_video_as_mp3(youtube_url):
     return mp3_file
 
 def get_transcript(audio_file):
-    client = openai.Audio
-    transcript = client.transcriptions.create(
-      model="whisper-1",
+    client = OpenAI()
+    audio_file= open(audio_file, "rb")
+    transcript = client.audio.transcriptions.create(
+      model="whisper-1", 
       file=audio_file
     )
     return transcript.text
