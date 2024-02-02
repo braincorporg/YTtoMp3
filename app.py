@@ -4,7 +4,7 @@ from moviepy.editor import *
 import os
 import io
 from openai import OpenAI
-
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
 openaikey = "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"
 def download_video_as_mp3(youtube_url):
@@ -30,7 +30,7 @@ def download_video_as_mp3(youtube_url):
     return mp3_file
 
 def get_transcript(audio_file):
-    client = OpenAI(api_key=openaikey)
+    client = OpenAI(api_key=OPENAI_API_KEY)
 
     # Write the BytesIO object to a temporary file
     temp_filename = "temp_audio_file.mp3"
@@ -80,7 +80,7 @@ def transcribe():
         # Now, instead of passing BytesIO directly, use the temporary file
         transcript = ""
         with open(temp_filename, 'rb') as f:
-            transcript = OpenAI(api_key=openaikey).audio.transcriptions.create(
+            transcript = OpenAI(api_key=OPENAI_API_KEY).audio.transcriptions.create(
                 model="whisper-1", 
                 file=f
             )['text']
