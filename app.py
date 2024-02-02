@@ -3,6 +3,7 @@ from pytube import YouTube
 from moviepy.editor import *
 import os
 import io
+import openai
 
 app = Flask(__name__)
 
@@ -28,7 +29,14 @@ def download_video_as_mp3(youtube_url):
     mp3_file.seek(0)
     return mp3_file
 
-
+def get_transcript(audio_file):
+    client = openai.Audio
+    transcript = client.transcriptions.create(
+      model="whisper-1",
+      file=audio_file
+    )
+    return transcript.text
+    
 @app.route('/download_mp3', methods=['GET'])
 def download_mp3():
     youtube_url = request.args.get('url')
@@ -38,6 +46,23 @@ def download_mp3():
     mp3_file = download_video_as_mp3(youtube_url)
     
     return send_file(mp3_file, mimetype="audio/mp3", as_attachment=True, download_name="download.mp3")
+@app.route('/transcribe', methods=['GET'])
+def transcribe():
+    youtube_url = request.args.get('url')
+    if not youtube_url:
+        return "YouTube URL is required", 400
 
+    try:
+        # Download and convert video to MP3
+        mp3_file = download_video_as_mp3(youtube_url)
+
+        # Get the transcript
+        transcript_text = get_transcript(mp3_file)
+        
+        # Return the transcript
+        return jsonify({"transcript": transcript_text})
+    except Exception as e:
+        return str(e), 500
+        
 if __name__ == '__main__':
     app.run(debug=True)
