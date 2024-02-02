@@ -36,6 +36,7 @@ def get_transcript(audio_file):
       model="whisper-1", 
       file=audio_file
     )
+    print(transcript)
     return transcript.text
     
 @app.route('/download_mp3', methods=['GET'])
