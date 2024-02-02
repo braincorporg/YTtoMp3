@@ -14,14 +14,20 @@ def download_video_as_mp3(youtube_url):
 
     # Convert video to MP3
     video_clip = AudioFileClip(downloaded_file)
-    mp3_file = io.BytesIO()
-    video_clip.write_audiofile(mp3_file, format="mp3")
-    mp3_file.seek(0)
+    temp_mp3_filename = "temp.mp3"
+    video_clip.write_audiofile(temp_mp3_filename)
 
-    # Remove the temporary file
+    # Read the MP3 file into a BytesIO object
+    with open(temp_mp3_filename, 'rb') as f:
+        mp3_file = io.BytesIO(f.read())
+
+    # Remove the temporary files
     os.remove(downloaded_file)
+    os.remove(temp_mp3_filename)
 
+    mp3_file.seek(0)
     return mp3_file
+
 
 @app.route('/download_mp3', methods=['GET'])
 def download_mp3():
