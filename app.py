@@ -61,16 +61,26 @@ def download_mp3():
     return send_file(mp3_file, mimetype="audio/mp3", as_attachment=True, download_name="download.mp3")
 @app.route('/transcribe', methods=['GET'])
 def transcribe():
-    try:
-        youtube_url = request.args.get('url')
-        if not youtube_url:
-            return "YouTube URL is required", 400
+    youtube_url = request.args.get('url')
+    if not youtube_url:
+        return "YouTube URL is required", 400
 
-        mp3_file = download_video_as_mp3(youtube_url)
-        transcript_text = get_transcript(mp3_file)
-        return jsonify({"transcript": transcript_text})
+    try:
+        mp3_file_path = download_video_as_mp3(youtube_url)
+        audio_file = open(mp3_file_path, "rb")
+
+        # Using the provided OpenAI API syntax
+        client = OpenAI()
+        transcript = client.audio.transcriptions.create(
+            model="whisper-1", 
+            file=audio_file
+        )
+
+        audio_file.close()
+        os.remove(mp3_file_path)
+
+        return jsonify({"transcript": transcript.text})
     except Exception as e:
-        app.logger.error(f"Error in transcribe: {e}")
         return str(e), 500
 
         
