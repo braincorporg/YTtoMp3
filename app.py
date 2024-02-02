@@ -6,7 +6,7 @@ import io
 from openai import OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
-openaikey = "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"
+
 def download_video_as_mp3(youtube_url):
     # Download video from YouTube
     video = YouTube(youtube_url)
@@ -28,6 +28,7 @@ def download_video_as_mp3(youtube_url):
 
     mp3_file.seek(0)
     return mp3_file
+
 
 def get_transcript(audio_file):
     client = OpenAI(api_key=OPENAI_API_KEY)
