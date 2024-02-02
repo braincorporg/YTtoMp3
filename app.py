@@ -66,18 +66,31 @@ def transcribe():
         return "YouTube URL is required", 400
 
     try:
+        # Download the video as mp3 and get BytesIO object
         mp3_file = download_video_as_mp3(youtube_url)
-        mp3_file.seek(0)  # Reset the file pointer to the beginning
 
-        # Using the provided OpenAI API syntax
-        client = OpenAI(api_key=openaikey)
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1", 
-            file=mp3_file  # Pass the BytesIO object directly
-        )
+        # Create a temporary file to hold the mp3 data
+        temp_filename = "temp_audio_for_transcription.mp3"
+        with open(temp_filename, "wb") as temp_file:
+            temp_file.write(mp3_file.read())
+        
+        # Reset the BytesIO object position to the start
+        mp3_file.seek(0)
 
-        return jsonify({"transcript": transcript['text']})
+        # Now, instead of passing BytesIO directly, use the temporary file
+        transcript = ""
+        with open(temp_filename, 'rb') as f:
+            transcript = OpenAI(api_key=openaikey).audio.transcriptions.create(
+                model="whisper-1", 
+                file=f
+            )['text']
+
+        # Cleanup: Remove the temporary file after use
+        os.remove(temp_filename)
+
+        return jsonify({"transcript": transcript})
     except Exception as e:
+        print(f"Error during transcription: {e}")  # Improved error logging
         return str(e), 500
 
 
