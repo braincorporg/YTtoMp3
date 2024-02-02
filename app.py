@@ -49,21 +49,18 @@ def download_mp3():
     return send_file(mp3_file, mimetype="audio/mp3", as_attachment=True, download_name="download.mp3")
 @app.route('/transcribe', methods=['GET'])
 def transcribe():
-    youtube_url = request.args.get('url')
-    if not youtube_url:
-        return "YouTube URL is required", 400
-
     try:
-        # Download and convert video to MP3
-        mp3_file = download_video_as_mp3(youtube_url)
+        youtube_url = request.args.get('url')
+        if not youtube_url:
+            return "YouTube URL is required", 400
 
-        # Get the transcript
+        mp3_file = download_video_as_mp3(youtube_url)
         transcript_text = get_transcript(mp3_file)
-        
-        # Return the transcript
         return jsonify({"transcript": transcript_text})
     except Exception as e:
+        app.logger.error(f"Error in transcribe: {e}")
         return str(e), 500
+
         
 if __name__ == '__main__':
     app.run(debug=True)
