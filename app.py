@@ -70,7 +70,7 @@ def transcribe():
         audio_file = open(mp3_file_path, "rb")
 
         # Using the provided OpenAI API syntax
-        client = OpenAI()
+        client = OpenAI(api_key=openaikey)
         transcript = client.audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file
