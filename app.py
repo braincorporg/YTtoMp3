@@ -26,7 +26,7 @@ def get_transcript(file_path):
                 model="whisper-1", 
                 file=f
             )
-        return transcript['text']
+        return transcript.text
     finally:
         os.remove(file_path)
 
