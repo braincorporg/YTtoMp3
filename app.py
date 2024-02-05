@@ -57,9 +57,10 @@ def transcribe():
     else:
         return "Transcription failed", 500
         
-app.route('/transcribe_mp3_url', methods=['GET'])
+app.route('/transcribe_mp3_url', methods=['POST'])
 def transcribe_mp3_url():
-    mp3_url = request.args.get('url')
+    data = request.get_json()  # Get data from the POST request body
+    mp3_url = data.get('url')
     if not mp3_url:
         return "MP3 URL is required", 400
 
