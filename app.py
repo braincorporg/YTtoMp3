@@ -21,7 +21,7 @@ def get_transcript(file_path):
                 model="whisper-1", 
                 file=f
             )
-        return transcript['text']
+        return transcript.text
     except Exception as e:
         print(f"Error during transcription: {e}")
         return None
