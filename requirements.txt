@@ -3,3 +3,4 @@ pytube
 moviepy
 gunicorn
 openai
+boto3
