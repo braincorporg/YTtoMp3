@@ -30,9 +30,10 @@ def get_transcript(file_path):
     finally:
         os.remove(file_path)
 
-@app.route('/download_mp3', methods=['GET'])
+@app.route('/download_mp3', methods=['POST'])
 def download_mp3():
-    youtube_url = request.args.get('url')
+    data = request.get_json()  # Get data from the POST request body
+    youtube_url = data.get('url')
     if not youtube_url:
         return "YouTube URL is required", 400
 
@@ -43,9 +44,10 @@ def download_mp3():
     os.remove(output_filename)  # Cleanup the file after sending
     return response
 
-@app.route('/transcribe', methods=['GET'])
+@app.route('/transcribe', methods=['POST'])
 def transcribe():
-    youtube_url = request.args.get('url')
+    data = request.get_json()  # Get data from the POST request body
+    youtube_url = data.get('url')
     if not youtube_url:
         return "YouTube URL is required", 400
 
