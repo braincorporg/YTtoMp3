@@ -3,4 +3,4 @@ pytube
 moviepy
 gunicorn
 openai
-pafy
+yt-dlp
