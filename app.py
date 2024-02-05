@@ -56,6 +56,33 @@ def transcribe():
         return jsonify({"transcript": transcript})
     else:
         return "Transcription failed", 500
+        
+app.route('/transcribe_mp3_url', methods=['GET'])
+def transcribe_mp3_url():
+    mp3_url = request.args.get('url')
+    if not mp3_url:
+        return "MP3 URL is required", 400
 
+    try:
+        output_filename = generate_unique_filename()
+        download_mp3_file(mp3_url, output_filename)
+        transcript = get_transcript(output_filename)
+
+        if transcript:
+            return jsonify({"transcript": transcript})
+        else:
+            return "Transcription failed", 500
+    except Exception as e:
+        print(f"Error during transcription: {e}")
+        return str(e), 500
+
+def download_mp3_file(mp3_url, output_filename):
+    response = requests.get(mp3_url)
+    if response.status_code == 200:
+        with open(output_filename, 'wb') as f:
+            f.write(response.content)
+    else:
+        raise Exception("Failed to download MP3 file")
+        
 if __name__ == '__main__':
     app.run(debug=True)
