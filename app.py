@@ -4,9 +4,33 @@ from moviepy.editor import *
 import os
 import io
 from openai import OpenAI
+import boto3
+
+
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
 
+# Configure S3 client
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    region_name=os.getenv("AWS_REGION")
+)
+
+S3_BUCKET = 'hermesai.braincorp'
+
+def upload_file_to_s3(file_path, bucket_name, object_name=None):
+    if object_name is None:
+        object_name = os.path.basename(file_path)
+    
+    try:
+        response = s3_client.upload_file(file_path, bucket_name, object_name)
+    except Exception as e:
+        print(f"Error uploading to S3: {e}")
+        return None
+    return f"s3://{bucket_name}/{object_name}"
+    
 def download_video_as_mp3(youtube_url):
     # Download video from YouTube
     video = YouTube(youtube_url)
