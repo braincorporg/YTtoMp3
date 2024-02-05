@@ -4,3 +4,4 @@ moviepy
 gunicorn
 openai
 boto3
+youtube-dl
